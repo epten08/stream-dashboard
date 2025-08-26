@@ -2,18 +2,22 @@ import { NavLink } from 'react-router-dom';
 import {
   VideoCameraIcon,
   TrophyIcon,
-  CalendarIcon,
   ChartBarIcon,
   UsersIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  DocumentTextIcon,
+  UserGroupIcon,
+  MapPinIcon
 } from '@heroicons/react/24/outline';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { logoutUser } from '../../store/authSlice';
 
 const navigation = [
   { name: 'Camera Feeds', href: '/dashboard/camera-feeds', icon: VideoCameraIcon },
-  { name: 'Leagues & Teams', href: '/dashboard/leagues-teams', icon: TrophyIcon },
-  { name: 'Fixtures & Results', href: '/dashboard/fixtures-results', icon: CalendarIcon },
+  { name: 'Leagues', href: '/dashboard/leagues', icon: TrophyIcon },
+  { name: 'Teams', href: '/dashboard/teams', icon: UserGroupIcon },
+  { name: 'Fixtures', href: '/dashboard/fixtures', icon: MapPinIcon },
+  { name: 'Results', href: '/dashboard/results', icon: DocumentTextIcon },
   { name: 'Standings', href: '/dashboard/standings', icon: ChartBarIcon },
   { name: 'Users & Subscriptions', href: '/dashboard/users-subscriptions', icon: UsersIcon },
 ];

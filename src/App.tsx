@@ -6,6 +6,10 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import Login from './pages/auth/Login';
 import Dashboard from './pages/Dashboard';
 import CameraFeeds from './pages/CameraFeeds';
+import Leagues from './pages/Leagues';
+import Teams from './pages/Teams';
+import Fixtures from './pages/Fixtures';
+import Results from './pages/Results';
 import LeaguesTeams from './pages/LeaguesTeams';
 import FixturesResults from './pages/FixturesResults';
 import Standings from './pages/Standings';
@@ -25,6 +29,10 @@ function App() {
           }>
             <Route index element={<Dashboard />} />
             <Route path="camera-feeds" element={<CameraFeeds />} />
+            <Route path="leagues" element={<Leagues />} />
+            <Route path="teams" element={<Teams />} />
+            <Route path="fixtures" element={<Fixtures />} />
+            <Route path="results" element={<Results />} />
             <Route path="leagues-teams" element={<LeaguesTeams />} />
             <Route path="fixtures-results" element={<FixturesResults />} />
             <Route path="standings" element={<Standings />} />

@@ -1,9 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
+import leaguesReducer from './leaguesSlice';
+import teamsReducer from './teamsSlice';
+import fixturesReducer from './fixturesSlice';
+import resultsReducer from './resultsSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    leagues: leaguesReducer,
+    teams: teamsReducer,
+    fixtures: fixturesReducer,
+    results: resultsReducer,
   },
 });
 
