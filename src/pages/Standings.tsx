@@ -1,23 +1,71 @@
-import { ChartBarIcon, TrophyIcon } from '@heroicons/react/24/outline';
+import { useEffect, useMemo } from 'react';
+import { ChartBarIcon, TrophyIcon, FunnelIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
+import { fetchStandings, setSelectedLeague, selectCurrentStandings } from '../store/standingsSlice';
+import { fetchLeagues } from '../store/leaguesSlice';
+import { useStandingsAutoUpdate } from '../hooks/useStandingsAutoUpdate';
 
 const Standings = () => {
-  const standings = [
-    { position: 1, team: 'Manchester United', played: 20, won: 15, drawn: 3, lost: 2, gf: 45, ga: 18, gd: 27, points: 48 },
-    { position: 2, team: 'Arsenal', played: 20, won: 14, drawn: 4, lost: 2, gf: 42, ga: 20, gd: 22, points: 46 },
-    { position: 3, team: 'Liverpool', played: 20, won: 13, drawn: 5, lost: 2, gf: 40, ga: 19, gd: 21, points: 44 },
-    { position: 4, team: 'Chelsea', played: 20, won: 12, drawn: 4, lost: 4, gf: 38, ga: 22, gd: 16, points: 40 },
-    { position: 5, team: 'Newcastle', played: 20, won: 10, drawn: 6, lost: 4, gf: 32, ga: 24, gd: 8, points: 36 },
-    { position: 6, team: 'Tottenham', played: 20, won: 9, drawn: 7, lost: 4, gf: 35, ga: 28, gd: 7, points: 34 },
-    { position: 7, team: 'Brighton', played: 20, won: 8, drawn: 5, lost: 7, gf: 30, ga: 31, gd: -1, points: 29 },
-    { position: 8, team: 'West Ham', played: 20, won: 6, drawn: 8, lost: 6, gf: 28, ga: 30, gd: -2, points: 26 },
-  ];
+  const dispatch = useAppDispatch();
+  const { standings, loading, error, selectedLeagueId } = useAppSelector(state => state.standings);
+  const { leagues } = useAppSelector(state => state.leagues);
+  const currentStandings = useAppSelector(selectCurrentStandings);
+  const { refreshStandings } = useStandingsAutoUpdate();
+
+  useEffect(() => {
+    dispatch(fetchLeagues());
+    dispatch(fetchStandings());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (selectedLeagueId) {
+      dispatch(fetchStandings(selectedLeagueId));
+    }
+  }, [dispatch, selectedLeagueId]);
+
+  const selectedLeague = useMemo(() => {
+    return leagues.find(league => league.$id === selectedLeagueId);
+  }, [leagues, selectedLeagueId]);
+
+  const handleLeagueChange = (leagueId: string) => {
+    dispatch(setSelectedLeague(leagueId === 'all' ? null : leagueId));
+  };
+
+  const getMatchdayInfo = () => {
+    if (currentStandings.length === 0) return 'No matches played';
+    const maxPlayed = Math.max(...currentStandings.map(team => team.played));
+    return `Matchday ${maxPlayed}`;
+  };
 
   const getPositionColor = (position: number) => {
     if (position <= 4) return 'bg-green-100 text-green-800';
     if (position <= 6) return 'bg-blue-100 text-blue-800';
-    if (position >= standings.length - 2) return 'bg-red-100 text-red-800';
+    if (position >= currentStandings.length - 2) return 'bg-red-100 text-red-800';
     return 'bg-gray-100 text-gray-800';
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="flex">
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-red-800">Error loading standings</h3>
+            <div className="mt-2 text-sm text-red-700">
+              <p>{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -28,14 +76,40 @@ const Standings = () => {
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center space-x-3">
               <TrophyIcon className="h-6 w-6 text-yellow-500" />
-              <h2 className="text-lg font-semibold text-gray-900">Premier League 2024-25</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                {selectedLeague ? selectedLeague.name : 'All Leagues'} Standings
+              </h2>
             </div>
-            <div className="flex items-center space-x-2">
-              <ChartBarIcon className="h-5 w-5 text-gray-400" />
-              <span className="text-sm text-gray-600">Matchday 20</span>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <FunnelIcon className="h-4 w-4 text-gray-400" />
+                <select
+                  value={selectedLeagueId || 'all'}
+                  onChange={(e) => handleLeagueChange(e.target.value)}
+                  className="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="all">All Leagues</option>
+                  {leagues.map(league => (
+                    <option key={league.$id} value={league.$id}>
+                      {league.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={refreshStandings}
+                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Refresh standings"
+                >
+                  <ArrowPathIcon className="h-4 w-4" />
+                </button>
+                <ChartBarIcon className="h-5 w-5 text-gray-400" />
+                <span className="text-sm text-gray-600">{getMatchdayInfo()}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -77,44 +151,52 @@ const Standings = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {standings.map((team) => (
-                <tr key={team.position} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${getPositionColor(team.position)}`}>
-                      {team.position}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{team.team}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                    {team.played}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-green-600 font-medium">
-                    {team.won}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-yellow-600 font-medium">
-                    {team.drawn}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-red-600 font-medium">
-                    {team.lost}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                    {team.gf}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                    {team.ga}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                    <span className={team.gd >= 0 ? 'text-green-600' : 'text-red-600'}>
-                      {team.gd >= 0 ? '+' : ''}{team.gd}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-gray-900">
-                    {team.points}
+              {currentStandings.length > 0 ? (
+                currentStandings.map((team) => (
+                  <tr key={team.teamId} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${getPositionColor(team.position)}`}>
+                        {team.position}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{team.teamName}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                      {team.played}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-green-600 font-medium">
+                      {team.won}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-yellow-600 font-medium">
+                      {team.drawn}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-red-600 font-medium">
+                      {team.lost}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                      {team.goalsFor}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                      {team.goalsAgainst}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                      <span className={team.goalDifference >= 0 ? 'text-green-600' : 'text-red-600'}>
+                        {team.goalDifference >= 0 ? '+' : ''}{team.goalDifference}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-gray-900">
+                      {team.points}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={10} className="px-6 py-8 text-center text-gray-500">
+                    No standings data available. Results are needed to generate standings.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

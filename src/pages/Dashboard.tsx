@@ -1,14 +1,52 @@
-import { VideoCameraIcon, UsersIcon, TrophyIcon, ChartBarIcon } from '@heroicons/react/24/outline';
-import { useAppSelector } from '../hooks/redux';
+import { useEffect } from 'react';
+import { VideoCameraIcon, UsersIcon, TrophyIcon, ChartBarIcon, EyeIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import { useAppSelector, useAppDispatch } from '../hooks/redux';
+import { generateAnalytics } from '../store/analyticsSlice';
 
 const Dashboard = () => {
+  const dispatch = useAppDispatch();
   const { user } = useAppSelector(state => state.auth);
+  const { analyticsOverview, loading } = useAppSelector(state => state.analytics);
+
+  useEffect(() => {
+    dispatch(generateAnalytics());
+  }, [dispatch]);
+
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toString();
+  };
 
   const stats = [
-    { name: 'Active Camera Feeds', value: '12', icon: VideoCameraIcon, change: '+2 from yesterday' },
-    { name: 'Live Matches', value: '3', icon: TrophyIcon, change: '2 scheduled today' },
-    { name: 'Total Users', value: '1,234', icon: UsersIcon, change: '+12% from last month' },
-    { name: 'Revenue', value: '$24,500', icon: ChartBarIcon, change: '+8% from last month' },
+    { 
+      name: 'Live Viewers', 
+      value: loading ? '...' : formatNumber(analyticsOverview.totalViewers), 
+      icon: EyeIcon, 
+      change: '+12% from yesterday',
+      color: 'text-blue-600'
+    },
+    { 
+      name: 'Active Subscriptions', 
+      value: loading ? '...' : formatNumber(analyticsOverview.totalSubscriptions), 
+      icon: UsersIcon, 
+      change: '+8% from last month',
+      color: 'text-green-600'
+    },
+    { 
+      name: 'Total Comments', 
+      value: loading ? '...' : formatNumber(analyticsOverview.totalComments), 
+      icon: ChatBubbleLeftRightIcon, 
+      change: '+23% from last week',
+      color: 'text-purple-600'
+    },
+    { 
+      name: 'Monthly Revenue', 
+      value: loading ? '...' : `$${analyticsOverview.totalRevenue.toFixed(0)}`, 
+      icon: ChartBarIcon, 
+      change: '+15% from last month',
+      color: 'text-orange-600'
+    },
   ];
 
   const recentActivity = [
@@ -30,10 +68,10 @@ const Dashboard = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat) => (
-          <div key={stat.name} className="bg-white rounded-lg shadow-md p-6">
+          <div key={stat.name} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <stat.icon className="h-8 w-8 text-blue-600" />
+              <div className="flex-shrink-0 p-3 rounded-lg bg-gray-50">
+                <stat.icon className={`h-6 w-6 ${stat.color}`} />
               </div>
               <div className="ml-4 w-0 flex-1">
                 <p className="text-sm font-medium text-gray-600 truncate">{stat.name}</p>
@@ -41,7 +79,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="mt-4">
-              <p className="text-sm text-gray-500">{stat.change}</p>
+              <p className="text-sm text-green-600 font-medium">{stat.change}</p>
             </div>
           </div>
         ))}
@@ -70,7 +108,10 @@ const Dashboard = () => {
                 <span className="text-purple-700 font-medium">Manage Users</span>
               </div>
             </button>
-            <button className="w-full text-left px-4 py-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors">
+            <button 
+              onClick={() => window.location.href = '/dashboard/analytics'}
+              className="w-full text-left px-4 py-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors"
+            >
               <div className="flex items-center">
                 <ChartBarIcon className="h-5 w-5 text-yellow-600 mr-3" />
                 <span className="text-yellow-700 font-medium">View Analytics</span>

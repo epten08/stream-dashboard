@@ -7,12 +7,14 @@ import {
   ArrowRightOnRectangleIcon,
   DocumentTextIcon,
   UserGroupIcon,
-  MapPinIcon
+  MapPinIcon,
+  PresentationChartLineIcon
 } from '@heroicons/react/24/outline';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { logoutUser } from '../../store/authSlice';
 
 const navigation = [
+  { name: 'Analytics', href: '/dashboard/analytics', icon: PresentationChartLineIcon },
   { name: 'Camera Feeds', href: '/dashboard/camera-feeds', icon: VideoCameraIcon },
   { name: 'Leagues', href: '/dashboard/leagues', icon: TrophyIcon },
   { name: 'Teams', href: '/dashboard/teams', icon: UserGroupIcon },

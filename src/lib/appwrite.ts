@@ -16,6 +16,13 @@ export const COLLECTIONS = {
   TEAMS: import.meta.env.VITE_APPWRITE_TEAMS_COLLECTION_ID || 'teams',
   FIXTURES: import.meta.env.VITE_APPWRITE_FIXTURES_COLLECTION_ID || 'fixtures',
   RESULTS: import.meta.env.VITE_APPWRITE_RESULTS_COLLECTION_ID || 'results',
+  USERS: import.meta.env.VITE_APPWRITE_USERS_COLLECTION_ID || 'users',
+  SUBSCRIPTIONS: import.meta.env.VITE_APPWRITE_SUBSCRIPTIONS_COLLECTION_ID || 'subscriptions',
+  TRANSACTIONS: import.meta.env.VITE_APPWRITE_TRANSACTIONS_COLLECTION_ID || 'transactions',
+  CHANNELS: import.meta.env.VITE_APPWRITE_CHANNELS_COLLECTION_ID || 'channels',
+  VIEWER_SESSIONS: import.meta.env.VITE_APPWRITE_VIEWER_SESSIONS_COLLECTION_ID || 'viewer_sessions',
+  MATCH_POPULARITY: import.meta.env.VITE_APPWRITE_MATCH_POPULARITY_COLLECTION_ID || 'match_popularity',
+  COMMENTS: import.meta.env.VITE_APPWRITE_COMMENTS_COLLECTION_ID || 'comments',
 };
 
 export default client;

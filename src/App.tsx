@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Login from './pages/auth/Login';
 import Dashboard from './pages/Dashboard';
+import Analytics from './pages/Analytics';
 import CameraFeeds from './pages/CameraFeeds';
 import Leagues from './pages/Leagues';
 import Teams from './pages/Teams';
@@ -28,6 +29,7 @@ function App() {
             </ProtectedRoute>
           }>
             <Route index element={<Dashboard />} />
+            <Route path="analytics" element={<Analytics />} />
             <Route path="camera-feeds" element={<CameraFeeds />} />
             <Route path="leagues" element={<Leagues />} />
             <Route path="teams" element={<Teams />} />
